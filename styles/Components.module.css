@@ -1,0 +1,313 @@
+/* Context Menu Styles */
+.ContextMenuContent {
+  min-width: 220px;
+  background-color: white;
+  border-radius: 5px;
+  overflow: hidden;
+  padding: 5px;
+  box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35), 0px 10px 20px -15px rgba(22, 23, 24, 0.2);
+}
+
+.ContextMenuItem {
+  all: unset;
+  font-size: 13pt;
+  line-height: 1;
+  color: #F71919;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  height: 25px;
+  padding: 0px 5px;
+  position: relative;
+  padding-left: 25px;
+  user-select: none;
+}
+
+.ContextMenuItem[data-disabled] {
+  color: rgb(200, 199, 203);
+  pointer-events: none;
+}
+
+.ContextMenuItem[data-highlighted] {
+  background-color: #F71919;
+  color: white;
+}
+
+/* Dialog Styles */
+@keyframes overlayShow {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes contentShow {
+  0% { 
+    opacity: 0; 
+    transform: translate(-50%, -48%) scale(.96); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translate(-50%, -50%) scale(1); 
+  }
+}
+
+.DialogOverlay {
+  background-color: rgba(0 0 0 / 0.5);
+  position: fixed;
+  inset: 0;
+  animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.DialogContent {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: hsl(206 22% 7% / 35%) 0px 10px 38px -10px, hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Raleway', sans-serif;
+  animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.DialogContent#login, .DialogContent#reset {
+  width: 400px;
+  padding: 30px;
+}
+
+.DialogContent#join, .DialogContent#photo {
+  width: 750px;
+  height: 500px;
+  padding: 30px;
+}
+
+.DialogContent#join {
+  display: flex;
+  flex-direction: column;
+}
+
+div.grid {
+  display: grid
+}
+
+div.gridItem {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+div.gridItem[position="one"] {
+  grid-row: 1;
+  grid-column: 1; 
+  margin-bottom: 5;
+}
+
+div.gridItem[position="two"] {
+  grid-row: 1;
+  grid-column: 2; 
+  margin-bottom: 5;
+}
+
+/* Image Cropper Styles*/
+.SliderRoot {
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  touch-action: none;
+}
+
+.SliderRoot[data-orientation=horizontal] {
+  height: 20px;
+}
+
+.SliderRoot[data-orientation=vertical] {
+  flex-direction: column;
+  width: 20px;
+  height: 100%;
+}
+
+.SliderTrack {
+  background-color: rgba(0, 0, 0, 0.48);
+  position: relative;
+  flex-grow: 1;
+  border-radius: 9999px;
+}
+
+.SliderTrack[data-orientation=horizontal] {
+  height: 3px;
+}
+
+.SliderTrack[data-orientation=vertical] {
+  width: 3px;
+}
+
+.SliderRange {
+  position: absolute;
+  background-color: #0062d2;
+  border-radius: 9999px;
+  height: 100%;
+}
+
+.SliderThumb {
+  all: unset;
+  display: block;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.14);
+  border-radius: 10px;
+}
+
+.SliderThumb:hover {
+  background-color: rgb(245, 242, 255);
+}
+
+.SliderThumb:focus {
+  box-shadow: 0px 0px 0px 5px rgba(0, 0, 0, 0.22);
+}
+
+/* Invite Styles */
+div.Invite {
+  background-color: #e4e4e4;
+  padding: 10px;
+  gap: 45px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+}
+
+div.RoomData {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Message Styles */
+div.MessageContainer {
+  width: 100%;
+  display: flex;
+  gap: 15px;
+  padding: 10px;
+  margin: 2.5px;
+}
+
+div.MessageContainer:hover {
+  background-color: rgb(243, 243, 243);
+  border-radius: 5px;
+}
+
+div.TextContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* Message Input Styles */
+div.MessageInputParent {
+  display: flex;
+  flex-direction: column;
+  background-color: rgb(243, 243, 243);
+  border-radius: 7.5px;
+  padding: 10px;
+  gap: 10px;
+  position: relative;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
+}
+
+div.MessageInputContainer {
+  width: 100%;
+  display: flex;
+  border-color: #393939;
+  border: none;
+  border-radius: 5px;
+  padding-left: 10px;
+  gap: 5px;
+  align-items: center;
+}
+
+/* Progress Bar Styles */
+div.ProgressBarParent {
+  display: flex;
+  padding: 10px;
+  border-radius: 5px;
+  gap: 5px;
+  align-items: center;
+  background-color: rgb(243, 243, 243);
+}
+
+div.ProgressBarMain {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+div.ProgressBar {
+  height: 10px;
+  width: 100%;
+  background-color: rgb(219, 219, 219);
+  border-radius: 5px;
+}
+
+/* Tooltip Styles */
+@keyframes slideUpAndFade {
+  0% { opacity: 0; transform: translateY(2px) };
+  100% { opacity: 1; transform: translateY(0px) };
+}
+
+@keyframes slideRightAndFade {
+  0% { opacity: 0; transform: translateX(-2px) };
+  100% { opacity: 1; transform: translateX(0px) };
+}
+
+@keyframes slideDownAndFade {
+  0% { opacity: 0; transform: translateY(-2px) };
+  100% { opacity: 1; transform: translateY(0px) };
+}
+
+@keyframes slideLeftAndFade {
+  0% { opacity: 0; transform: translateX(2px) };
+  100% { opacity: 1; transform: translateX(0px) };
+}
+
+.TooltipContent {
+  padding: 10px 15px;
+  font-size: 15pt;
+  line-height: 1;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: hsl(206 22% 7% / 35%) 0px 10px 38px -10px, hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
+  user-select: none;
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.TooltipContent:focus {
+  outline: none;
+}
+
+.TooltipContent[data-state='delayed-open'][data-side='top'] {
+  animation-name: slideDownAndFade;
+}
+
+.TooltipContent[data-state='delayed-open'][data-side='right'] {
+  animation-name: slideLeftAndFade;
+}
+
+.TooltipContent[data-state='delayed-open'][data-side='bottom'] {
+  animation-name: slideUpAndFade;
+}
+
+.TooltipContent[data-state='delayed-open'][data-side='left'] {
+  animation-name: slideRightAndFade;
+}
+
+.TooltipArrow {
+  fill: white;
+}
