@@ -1,9 +1,9 @@
 export const firebaseConfig = {
-  apiKey: "AIzaSyC20jtvUGR7GXFPqw738gYvysDAmk8bLUs",
-  authDomain: "social-media-c6805.firebaseapp.com",
-  projectId: "social-media-c6805",
-  storageBucket: "social-media-c6805.appspot.com",
-  messagingSenderId: "544179514464",
-  appId: "1:544179514464:web:44d5009cb82a8c1d416705",
-  measurementId: "G-D3M7ZPSKE5"
+  apiKey: "AIzaSyBzAfiKEi2DSw-y_AhVc0W3uE78Bf-d0q4",
+  authDomain: "social-media-prod-90921.firebaseapp.com",
+  projectId: "social-media-prod-90921",
+  storageBucket: "social-media-prod-90921.appspot.com",
+  messagingSenderId: "224187321523",
+  appId: "1:224187321523:web:97cffadd4d5a56111a74c6",
+  measurementId: "G-13Z471ZVYJ"
 };
