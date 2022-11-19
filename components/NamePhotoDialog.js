@@ -27,7 +27,6 @@ const NamePhotoDialog = ({ submit, children, placeholder }) => {
                   type="text" 
                   placeholder={placeholder}
                   onChange={(e) => {
-                    handleKeyPress(e)
                     setName(e.target.value)
                   }}
                   maxLength={250} 

@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from "react"
 import ProgressiveImg from "./ProgressiveImg"
 import placeholder from '../images/placeholder.png'
-import ContextMenu from "./ContextMenu"
+import UserContextMenu from "./UserContextMenu"
 import { useRouter } from "next/router";
 import Invite from "./Invite"
 import Image from "next/image"
@@ -26,7 +26,7 @@ const Message = ({ data }) => {
     }
 
     const getTimestamp = () => {
-      var date = new Date(data.created * 1000)
+      var date = new Date(data.createdAt * 1000)
       var hh = date.getUTCHours()
       var mm = date.getUTCMinutes()
       
@@ -58,16 +58,16 @@ const Message = ({ data }) => {
         />
       </div>
       <div className={styles.TextContainer}>
-        <ContextMenu senderUid={data.senderUid}><span>{data.senderName} {timeSent}</span></ContextMenu>
+        <UserContextMenu senderUid={data.senderUid}><span>{data.senderName} {timeSent}</span></UserContextMenu>
         {isUrl == true ? 
           <a href={data.contents}>{data.contents}</a> :
           <span>{data.contents}</span> 
         }
         {data.isInvite == true && <Invite url={data.contents}/>}
-        {data.attachments != '' &&
+        {data.attachment != '' &&
           <ProgressiveImg 
             placeholderSrc={placeholder.src}
-            src={data.attachments} />
+            attachment={data.attachment} />
         }
       </div>
     </div>

@@ -1,26 +1,23 @@
 import { useEffect, useState } from "react";
 
-const ProgressiveImg = ({ placeholder, src }) => {
+const ProgressiveImg = ({ placeholder, attachment }) => {
   const [imgSrc, setImgSrc] = useState(placeholder)
-  const [dimensions, setDimensions] = useState({width: 0, height: 0})
+
   useEffect(() => {
-    console.log(placeholder)
     const newImg = new Image();
-    newImg.src = src;
+    newImg.src = attachment.src;
     newImg.onload = () => {
-      console.log(newImg)
       setImgSrc(newImg.src)
-      setDimensions({width: newImg.width, height: newImg.height}) 
     };
-  }, [src])
+  }, [attachment])
   
 
   return(
     <img
       src={imgSrc}
       className="progressiveImg"
-      width={dimensions.width}
-      height={dimensions.height}
+      width={attachment.width}
+      height={attachment.height}
       alt=""
     />
   )

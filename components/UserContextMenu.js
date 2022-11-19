@@ -3,7 +3,7 @@ import { arrayUnion, collection, doc, getDocs, query, updateDoc, where } from 'f
 import { db } from '../utils/Firebase';
 import styles from '../styles/Components.module.css'
 
-export const ContextMenu = (props) => {
+export const UserContextMenu = (props) => {
 
   const handleBlock = async() => {
     const userData = JSON.parse(window.sessionStorage.getItem('userData'))
@@ -16,11 +16,7 @@ export const ContextMenu = (props) => {
       })
     })
   }
-
-  const handleDelete = async() => {
-    props.delete()
-  }
-
+  
   return (
     <Menu.Root>
       <Menu.Trigger>
@@ -28,21 +24,14 @@ export const ContextMenu = (props) => {
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Content className={styles.ContextMenuContent} sideOffset={5} align="end">
-          {props.type == 'user' &&
-            <Menu.Item className={styles.ContextMenuItem} onSelect={handleBlock}>
-              Block
-            </Menu.Item>
-          }
-          {props.type == 'channel' &&
-            <Menu.Item className={styles.ContextMenuItem} onSelect={handleDelete}>
-              Delete
-            </Menu.Item>
-          }
+          <Menu.Item className={styles.ContextMenuItem} onSelect={handleBlock}>
+            Block
+          </Menu.Item>
         </Menu.Content>
       </Menu.Portal>
     </Menu.Root>
   );
 };
 
-export default ContextMenu;
+export default UserContextMenu;
 

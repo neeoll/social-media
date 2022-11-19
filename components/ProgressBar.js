@@ -19,7 +19,7 @@ export const ProgressBar = ({ cancelUpload, filename, progress }) => {
           <Fill />
         </div>
       </div>
-      <button className="icon" onClick={cancelUpload}>
+      <button className="transparent" onClick={cancelUpload}>
         <Cross2Icon height={20} width={20} />
       </button>
     </div>

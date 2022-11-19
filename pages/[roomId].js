@@ -49,8 +49,7 @@ export default function Room({ data }) {
       const roomSnap = await getDoc(doc(db, 'room', roomId))
       if (!roomSnap.exists()) return 
       setRoomName(roomSnap.data().name)
-      const messageDocId = roomSnap.data().channels[0].id.replace('/messages/', '')
-      updateDocId(messageDocId)
+      updateDocId(roomSnap.data().channels[0].id)
     } catch (error) {
       console.log(error)
     }
@@ -94,23 +93,20 @@ export default function Room({ data }) {
   const submit = async(e, textData) => {
     e.preventDefault()
     try {
-      const messagesRef = doc(db, 'messages', messagesDocId)
+      const messagesRef = collection(db, `/channels/${messagesDocId}/messages/`)
       const senderData = JSON.parse(window.sessionStorage.getItem('userData'))
       const isInvite = await checkIfInvite(textData)
       if (file) {
         await handleUpload(messagesRef, textData, senderData, isInvite)
       } else {
-        await updateDoc(messagesRef, {
-          messages: arrayUnion({
-            attachments: [],
-            contents: textData,
-            created: Timestamp.now().seconds,
-            messageId: generateId(10),
-            senderName: senderData.name,
-            senderProfileIcon: senderData.photoUrl,
-            senderUid: senderData.uid,
-            isInvite: isInvite
-          })
+        await addDoc(messagesRef, {
+          attachment: '',
+          contents: textData,
+          createdAt: Timestamp.now().seconds,
+          isInvite: isInvite,
+          senderName: senderData.name,
+          senderProfileIcon: senderData.photoUrl,
+          senderUid: senderData.uid,
         })
       }
     } catch (error) {
@@ -133,20 +129,25 @@ export default function Room({ data }) {
       (error) => console.log(error),
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then(async(url) => {
-          await updateDoc(messagesRef, {
-            messages: arrayUnion({
-              attachments: url,
+          let newImg = new Image()
+          newImg.src = url
+          newImg.onload = async() => {
+            await addDoc(messagesRef, {
+              attachment: {
+                height: newImg.height,
+                src: url,
+                width: newImg.width,
+              },
               contents: textData,
-              created: Timestamp.now().seconds,
-              messageId: generateId(10),
+              createdAt: Timestamp.now().seconds,
+              isInvite: isInvite,
               senderName: senderData.name,
               senderProfileIcon: senderData.photoUrl,
               senderUid: senderData.uid,
-              isInvite: isInvite
             })
-          })
 
-          setPercent(null)
+            setPercent(null)
+          }
         })
       }
     )

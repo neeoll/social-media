@@ -7,6 +7,13 @@ const PasswordResetDialog = ({ confirm, children }) => {
 
   const [textData, updateText] = useState('')
 
+  const handleKeyPress = (e) => {
+    if (e.keyCode == 13) {
+      submit(e)
+      document.activeElement.value = ""
+    }
+  }
+
   const submit = () => { 
     confirm(textData)
   }

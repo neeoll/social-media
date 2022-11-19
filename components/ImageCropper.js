@@ -23,11 +23,6 @@ export const ImageCropper = ({updateFile}) => {
     setFilename(event.target.files[0].name)
   }
 
-  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
-    setCroppedAreaPixels(croppedAreaPixels)
-    showCroppedImage()
-  }, [showCroppedImage])
-
   const showCroppedImage = useCallback(async () => {
     try {
       const croppedImage = await getCroppedImg(
@@ -42,6 +37,11 @@ export const ImageCropper = ({updateFile}) => {
       console.log(error)
     }
   }, [croppedAreaPixels, rotation, filename, src, updateFile])
+
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels)
+    showCroppedImage()
+  }, [showCroppedImage])
 
   return (
     <div style={{display: 'flex', flexDirection: 'column', gap: 10}}>

@@ -1,36 +1,64 @@
-import { onSnapshot, query, where, collection } from "firebase/firestore"
-import React, { useEffect, useState } from "react"
+import { onSnapshot, query, where, collection, orderBy, doc } from "firebase/firestore"
+import React, { useEffect, useReducer, useState } from "react"
 import { db } from "../utils/Firebase"
 import Message from "./Message"
 
+const initialState = { messages: [] }
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'clear': {
+      return { messages: [] }
+    }
+    case 'add': {
+      state.messages.splice(0, 0, action.data)
+      return { messages: state.messages }
+    }
+    case 'modify': {
+      let index = state.messages.findIndex((message) => message.id === action.data.id)
+      state.messages.splice(index, 1, action.data)
+      return { messages: state.messages }
+    }
+    case 'delete': {
+      const filtered = state.messages.filter(message => message.id != action.data.id)
+      return { messages: filtered }
+    }
+    default: {
+      throw new Error()
+    }
+  }
+}
+
 export const Messages = ({ documentId }) => {
-  const [messages, updateMessages] = useState([])
+  const [state, dispatch] = useReducer(reducer, initialState)
 
   useEffect(() => {
     if (documentId == '') return
-    const blockedUsers = JSON.parse(window.sessionStorage.getItem('userData')).blockedUsers
-    let messagesQuery = query(collection(db, 'messages'), where('__name__', '==', `${documentId}`))
-    let unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
-      snapshot.docChanges().every(change => {
+    dispatch({type: 'clear'})
+    let messageCollection = query(collection(db, `/channels/${documentId}/messages`), orderBy('createdAt', 'asc'))
+    let unsubscribe = onSnapshot(messageCollection, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
-          updateMessages(change.doc.data().messages.reverse())
+          console.log('Added: ', change.doc.data())
+          dispatch({type: 'add', data: { ...change.doc.data(), id: change.doc.id }})
         }
         if (change.type === "modified") {
-          let newMessage = change.doc.data().messages[change.doc.data().messages.length - 1]
-          if (blockedUsers.includes(newMessage.senderUid)) return false
-          updateMessages(messages => [newMessage, ...messages])
+          console.log('Modified: ', change.doc.data())
+          dispatch({type: 'modify', data: { ...change.doc.data(), id: change.doc.id }})
         }
         if (change.type === "removed") {
-          console.log("Removed: ", change.doc.data())
+          console.log('Removed: ', change.doc.data())
+          dispatch({type: 'delete', data: { ...change.doc.data(), id: change.doc.id }})
         }
       })
     })
+
     return () => unsubscribe()
   }, [documentId])
 
   return (
     <div className="noScrollbar" id="messages">
-      {messages.map((message) =>
+      {state.messages.map((message) =>
         <Message key={message.messageId} data={message} uid={message.from}/>
       )}
     </div>

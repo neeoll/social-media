@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { PlusIcon, GlobeIcon } from '@radix-ui/react-icons'
-import { addDoc, collection, doc, getDoc, where, query, updateDoc, arrayUnion, getDocs, onSnapshot } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, where, query, updateDoc, arrayUnion, getDocs, onSnapshot, arrayRemove } from 'firebase/firestore'
 import { db, storage } from '../utils/Firebase'
 import { useRouter } from 'next/router'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import Tooltip from './Tooltip'
 import NamePhotoDialog from './NamePhotoDialog'
 import Image from 'next/image'
+import RoomContextMenu from './RoomContextMenu'
 
 
 const Rooms = () => {
@@ -29,11 +30,17 @@ const Rooms = () => {
           })
         }
         if (change.type === "modified") {
-          let newRoom = change.doc.data().rooms[change.doc.data().rooms.length - 1]
+          /* let newRoom = change.doc.data().rooms[change.doc.data().rooms.length - 1]
           const roomSnap = await getDoc(doc(db, 'room', newRoom.replace('/room/', '')))
           if (!roomSnap.exists()) return
           
-          updateRooms(rooms => [ ...rooms, {...roomSnap.data(), docId: roomSnap.id}])
+          updateRooms(rooms => [ ...rooms, {...roomSnap.data(), docId: roomSnap.id}]) */
+          change.doc.data().rooms.forEach(async(ref) => {
+            const roomSnap = await getDoc(doc(db, 'room', ref.replace('/room/', '')))
+            if (!roomSnap.exists()) return
+            
+            updateRooms(rooms => [ ...rooms, {...roomSnap.data(), docId: roomSnap.id}])
+          })
         }
         if (change.type === "removed") {
           console.log("Removed: ", change.doc.data())
@@ -58,11 +65,7 @@ const Rooms = () => {
         (error) => console.log(error),
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then(async(url) => {
-            const img = new Image()
-            img.src = url
-            img.onload = async() => {
-              createRoom(roomName, url)
-            }
+            createRoom(roomName, url)
           })
         }
       )
@@ -72,9 +75,7 @@ const Rooms = () => {
   }
 
   const createRoom = async (roomName, url) => {
-    const messagesRef = await addDoc(collection(db, "messages"), {
-      messages: []
-    })
+    const channelRef = await addDoc(collection(db, 'channels'), {})
 
     const nameSubstrs = roomName.split(' ')
     let shortName = ''
@@ -85,7 +86,7 @@ const Rooms = () => {
     const uid = JSON.parse(window.sessionStorage.getItem('userData')).uid
     const roomRef = await addDoc(collection(db, "room"), {
       channels: [{
-        id: `/${messagesRef.path}`, 
+        id: `${channelRef.id}`, 
         name: 'general'
       }],
       name: roomName,
@@ -113,8 +114,25 @@ const Rooms = () => {
   }
 
   const handleClick = (event, room) => {
+    console.log(room)
     window.localStorage.setItem('lastOpenedRoom', room.docId)
     router.push(`./${room.docId}`)
+  }
+
+  const handleDelete = async(room) => {
+    try {
+      console.log(room.name)
+      console.log(room.docId)
+      const userData = JSON.parse(window.sessionStorage.getItem('userData'))
+      const userRef = doc(db, 'users', `${userData.docId}`)
+      const userDoc = await getDoc(userRef)
+      console.log(userDoc.data())
+      await updateDoc(userRef, {
+        rooms: arrayRemove(`/room/${room.docId}`)
+      })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (
@@ -122,17 +140,19 @@ const Rooms = () => {
       {rooms.map((room, index) => (
         <div key={index}>
           <Tooltip tooltipContent={room.name}>
-            <button className="room" onClick={(event) => { handleClick(event, room) }}>
-              {room.roomIcon == undefined ?
-                  room.docId == 'wdmTyHNou54R1b2mgZjK' ? <GlobeIcon width={45} height={45} /> : room.shortName :
-                  <Image
-                    src={room.roomIcon} 
-                    width={'100%'} 
-                    height={'100%'} 
-                    alt=""
-                  />
-              }
-            </button>
+            <RoomContextMenu delete={() => { handleDelete(room) }}>
+              <button className="room" onClick={(event) => { handleClick(event, room) }}>
+                {room.roomIcon == undefined ?
+                    room.docId == 'wdmTyHNou54R1b2mgZjK' ? <GlobeIcon width={45} height={45} /> : room.shortName :
+                    <img
+                      src={room.roomIcon} 
+                      width={'100%'} 
+                      height={'100%'} 
+                      alt=""
+                    />
+                }
+              </button>
+            </RoomContextMenu>
           </Tooltip>
         </div>
       ))}
