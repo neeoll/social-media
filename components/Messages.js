@@ -54,7 +54,7 @@ export const Messages = ({ documentId }) => {
         }
         if (change.type === "modified") {
           console.log('Modified: ', change.doc.data())
-          // dispatch({type: 'modify', data: { ...change.doc.data(), id: change.doc.id }})
+          dispatch({type: 'modify', data: { ...change.doc.data(), id: change.doc.id }})
         }
         if (change.type === "removed") {
           console.log('Removed: ', change.doc.data())

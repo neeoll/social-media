@@ -13,7 +13,6 @@ const Channels = ({docId, activeChannel, setChannel}) => {
 
   useEffect(() => {
     if (docId == '') return
-    dispatch({type: 'clear'})
     let channelsQuery = query(collection(db, 'room'), where('__name__', '==', `${docId}`))
     let unsubscribe = onSnapshot(channelsQuery, (snapshot) => {
       snapshot.docChanges().every(async (change) => {
