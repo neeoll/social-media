@@ -158,7 +158,7 @@ export default function Login() {
         id: `${messagesRef.path}`,
         name: 'general'
       }],
-      name: 'Global',
+      name: `${user.email}'s Room`,
       users: [user.uid],
       roomIcon: '',
       shortName: 'G'
