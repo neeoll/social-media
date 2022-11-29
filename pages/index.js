@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
-import { query, getDocs, collection, where, addDoc } from "firebase/firestore";
+
+import { useEffect, useRef, useState } from "react";
+import { query, getDocs, collection, where, addDoc, Timestamp } from "firebase/firestore";
 import { db, storage } from '../utils/Firebase'
 import { useRouter } from "next/router";
 import { getGlobalAuth, signInWithGoogle, logInWithEmailAndPassword, sendPasswordReset, registerWithEmailandPassword } from "../utils/AuthManager";
@@ -107,6 +108,65 @@ export default function Login() {
     }
   }
 
+  function generateId(length) {
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+
+    return result;
+  }
+
+  const populateDatabase = async() => {
+    // Register and sign in to get auth access
+    await registerWithEmailandPassword("a.vidgamer.na@gmail.com", "password")
+    const user = await logInWithEmailAndPassword("a.vidgamer.na@gmail.com", "password")
+
+    // Create message document and fill with placeholder data to reference later
+    let rawPosts = await fetch('https://jsonplaceholder.typicode.com/posts').then(response => response.json())
+    let newMessages = []
+    rawPosts.forEach(post => {
+      newMessages.push({
+        attachments: '',
+        contents: post.body,
+        created: Timestamp.now().seconds,
+        isInvite: false,
+        messageId: generateId(10),
+        senderName: 'Nolas',
+        senderProfileIcon: '',
+        senderUid: user.uid
+      })
+    })
+    const messagesRef = await addDoc(collection(db, 'messages'), {
+      messages: newMessages
+    })
+
+    // Create room and pass in 
+    const roomRef = await addDoc(collection(db, 'rooms'), {
+      channels: [{
+        id: `${messagesRef.path}`,
+        name: 'general'
+      }],
+      name: 'Global',
+      users: [user.uid],
+      roomIcon: '',
+      shortName: 'G'
+    })
+
+    // Create user entry in the database now that the roomRef has been created
+    await addDoc(collection(db, 'users'), {
+      blockedUsers: [],
+      uid: user.uid,
+      name: 'Nolas',
+      email: user.email,
+      photoUrl: '',
+      rooms: [`${roomRef.path}`],
+    })
+  }
+
+
   return (
     <div className="card" id="login">
       <div className="actions">
@@ -117,7 +177,8 @@ export default function Login() {
           <button className="save">Login</button>
         </DialogContainer>
         <button className="save" onClick={googleSignIn}>Sign In With Google</button>
-        
+        <button className="save" onClick={googleSignIn}>Sign In With Google</button>
+        <button className="save" onClick={populateDatabase}>Populate Database</button>
       </div>
       <div className="footer">
         <DialogContainer type="passwordReset" submit={sendPasswordReset}>
