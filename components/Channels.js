@@ -52,8 +52,8 @@ const Channels = ({docId, activeChannel, setChannel}) => {
 
   return (
     <div className="noScrollbar">
-      {channels.map((channel, index) => (
-        <ContextMenuContainer type="channel" delete={() => { handleDelete(channel) }} edit={() => { handleEdit(channel) }}>
+      {channels.map((channel) => (
+        <ContextMenuContainer type="channel" delete={() => { handleDelete(channel) }} edit={() => { handleEdit(channel) }} key={channel.id}>
           <button
             className="channel"
             onClick={() => {

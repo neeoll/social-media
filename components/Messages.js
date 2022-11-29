@@ -86,7 +86,7 @@ export const Messages = ({ documentId }) => {
   return (
     <div className="noScrollbar" id="messages">
       {state.messages.map((message) =>
-        <ContextMenuContainer type="message" delete={() => { deleteMessage(message) }}>
+        <ContextMenuContainer type="message" delete={() => { deleteMessage(message) }} key={message.id}>
           <Message key={message.messageId} data={message} uid={message.senderUid}/>
         </ContextMenuContainer>
       )}
