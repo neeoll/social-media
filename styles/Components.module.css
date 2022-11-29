@@ -1,4 +1,9 @@
 /* Context Menu Styles */
+.ContextMenuTrigger {
+  width: 100%;
+  padding: 5px;
+}
+
 .ContextMenuContent {
   min-width: 220px;
   background-color: white;
@@ -12,15 +17,19 @@
   all: unset;
   font-size: 13pt;
   line-height: 1;
-  color: #F71919;
   border-radius: 3px;
   display: flex;
   align-items: center;
   height: 25px;
-  padding: 0px 5px;
+  padding: 5px;
   position: relative;
   padding-left: 25px;
   user-select: none;
+  color: #393939; 
+}
+
+.ContextMenuItem#remove {
+  color: #F71919;
 }
 
 .ContextMenuItem[data-disabled] {
@@ -29,6 +38,11 @@
 }
 
 .ContextMenuItem[data-highlighted] {
+  background-color: #393939; 
+  color: white;
+}
+
+.ContextMenuItem#remove[data-highlighted] {
   background-color: #F71919;
   color: white;
 }
@@ -69,7 +83,7 @@
   animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.DialogContent#login, .DialogContent#reset {
+.DialogContent#login, .DialogContent#reset, .DialogContent#settings, .DialogContent#cropper {
   width: 400px;
   padding: 30px;
 }
@@ -87,6 +101,17 @@
 
 div.grid {
   display: grid
+}
+div.settingsNameContainer {
+  display: flex;
+  gap: 15px;
+  padding: 5px;
+  align-items: center;
+}
+
+div.flexColumn {
+  display: flex;
+  flex-direction: column;
 }
 
 div.gridItem {

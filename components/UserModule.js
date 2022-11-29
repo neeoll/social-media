@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react"
+import { GearIcon } from "@radix-ui/react-icons"
+import DialogContainer from "./Dialog"
 
 export const UserModule = () => {
   const [userData, setData] = useState({})
@@ -21,6 +23,11 @@ export const UserModule = () => {
         alt=""
       />
       <span>{userData.name}</span>
+      <DialogContainer type="settings">
+        <button className="transparent">
+          <GearIcon width={20} height={20} />
+        </button>
+      </DialogContainer>
     </div>
   )
 }
