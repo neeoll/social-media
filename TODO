@@ -1,0 +1,9 @@
+- A settings menu to change user profile information (Finished) and manage blocked users
+- Finish adding deletion functionality to stuff like messages, channels, and rooms (Finished)
+- Ability to edit channel names, and room icons and names
+RESTRUCTURE DATABASE FOR CHANNEL RENAMING
+
+DO ON FREE TIME, NOT A PRIORITY AS THESE ALREADY FUNCTION
+- Restructure databse where possible to take advantage of proper onSnapshot usage
+- Implement useReducer in more places to eventually have the ability to reorder channels and rooms
+- Style changes and code refactoring when applicable or necessary

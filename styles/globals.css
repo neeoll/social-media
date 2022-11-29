@@ -105,6 +105,12 @@ div.channels {
   'user';
 }
 
+div.messageHeader {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
 /* Button Styles */
 button {
   height: fit-content;
@@ -228,6 +234,14 @@ input[type=text]:focus, input[type=password]:focus  {
 /* Image Styles */
 .userIcon {
   border-radius: 25px;
+  width: 50px;
+  height: 50px;
+}
+
+.settingsIcon {
+  width: 100px;
+  height: 100px;
+  border-radius: 100px;
 }
 
 .imgPreview {
@@ -240,4 +254,22 @@ input[type=text]:focus, input[type=password]:focus  {
   max-width: 50%;
   object-fit: contain;
   border-radius: 5px;
+}
+
+/* Span Styles */
+
+span.small {
+  font-size: small;
+}
+
+span.medium {
+  font-size: medium;
+}
+
+span.large {
+  font-size: large;
+}
+
+span.larger {
+  font-size: larger;
 }

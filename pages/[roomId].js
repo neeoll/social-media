@@ -1,18 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { db, storage } from '../utils/Firebase'
-import { Timestamp, updateDoc, addDoc, doc, getDoc, getDocs, query, collection, arrayUnion } from 'firebase/firestore'
+import { Timestamp, updateDoc, addDoc, doc, getDoc, getDocs, query, collection, arrayUnion, setDoc } from 'firebase/firestore'
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { getGlobalAuth, logout } from "../utils/AuthManager";
 import { useRouter } from "next/router";
 
 import MessageInput from "../components/MessageInput";
 import ProgressBar from "../components/ProgressBar";
-import JoinRoomDialog from "../components/JoinRoomDialog";
 import Messages from "../components/Messages";
 import UserModule from "../components/UserModule";
 import RoomHeader from "../components/RoomHeader";
 import Rooms from "../components/Rooms";
 import Channels from "../components/Channels";
+import DialogContainer from "../components/Dialog";
 
 export const getServerSideProps = async(context) => {
   const query = context.query
@@ -26,7 +26,7 @@ export const getServerSideProps = async(context) => {
 
 export default function Room({ data }) {
   const [messagesDocId, updateDocId] = useState('')
-  const [roomDocId, setRoomDocId] = useState()
+  const [roomDocId, setRoomDocId] = useState('')
   const [roomName, setRoomName] = useState('')
   const [file, setFile] = useState()
   const [filename, setFilename] = useState('')
@@ -107,6 +107,7 @@ export default function Room({ data }) {
           senderName: senderData.name,
           senderProfileIcon: senderData.photoUrl,
           senderUid: senderData.uid,
+          senderRef: doc(db, 'users', senderData.docId)
         })
       }
     } catch (error) {
@@ -141,9 +142,7 @@ export default function Room({ data }) {
               contents: textData,
               createdAt: Timestamp.now().seconds,
               isInvite: isInvite,
-              senderName: senderData.name,
-              senderProfileIcon: senderData.photoUrl,
-              senderUid: senderData.uid,
+              senderRef: doc(db, 'users', senderData.docId)
             })
 
             setPercent(null)
@@ -154,13 +153,13 @@ export default function Room({ data }) {
   }
 
   const createChannel = async(channelName) => {
-    const messagesRef = await addDoc(collection(db, "messages"), {
-      messages: []
+    const messagesRef = await addDoc(collection(db, "channels"), {
+      name: channelName
     })
 
     const roomRef = doc(db, 'room', data.roomId)
     await updateDoc(roomRef, {
-      channels: arrayUnion({id: `/${messagesRef.path}`, name: channelName})
+      channels: arrayUnion({id: `${messagesRef.id}`, name: channelName})
     })
   }
 
@@ -181,9 +180,9 @@ export default function Room({ data }) {
 
   return (
     <div className="card" id="home">
-      <JoinRoomDialog roomDocId={data.roomId}>
+      <DialogContainer type="join" roomDocId={data.roomId}>
         <button ref={joinRoomRef} style={{display: 'none'}}/>
-      </JoinRoomDialog>
+      </DialogContainer>
       <Rooms />
       <div className="channels">
         <RoomHeader data={roomName} createChannel={createChannel}/>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { query, getDocs, collection, where, addDoc } from "firebase/firestore";
 import { db, storage } from '../utils/Firebase'
 import { useRouter } from "next/router";
@@ -6,23 +6,12 @@ import { getGlobalAuth, signInWithGoogle, logInWithEmailAndPassword, sendPasswor
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { UserSnapshotListener } from "../utils/UserSnapshotListener";
 
-import PasswordResetDialog from '../components/PasswordResetDialog'
-import NamePhotoDialog from "../components/NamePhotoDialog";
-import EmailAndPasswordDialog from "../components/EmailAndPasswordDialog";
+import DialogContainer from "../components/Dialog";
 
 export default function Login() {
-
-  const [email, updateEmail] = useState('')
-  const [password, updatePassword] = useState('')
+  
   const router = useRouter()
   const createUserRef = useRef(null)
-
-  const checkAuth = () => {
-    const authGlobal = getGlobalAuth()
-    if (authGlobal.currentUser != null) {
-      router.push('/home')
-    }
-  }
 
   useEffect(() => {
     const checkAuth = () => {
@@ -59,7 +48,7 @@ export default function Login() {
     }
   }
 
-  const emailAndPasswordSignIn = async() => {
+  const emailAndPasswordSignIn = async(email, password) => {
     try {
       const user = await logInWithEmailAndPassword(email, password)
       const queryRef = query(collection(db, 'users'), where('uid', '==', user.uid))
@@ -67,6 +56,7 @@ export default function Login() {
         
       const listener = UserSnapshotListener(userDocs.docs[0].id)
       listener()
+      console.log(JSON.parse(window.sessionStorage.getItem('userData')))
 
       router.push(`./${'wdmTyHNou54R1b2mgZjK'}`)
     } catch(error) {
@@ -74,7 +64,7 @@ export default function Login() {
     }
   }
 
-  const registerRoute = async() => {
+  const registerRoute = async(email, password) => {
     if (email && password != null) {
       await registerWithEmailandPassword(email, password)
       createUserRef.current.click()
@@ -120,22 +110,23 @@ export default function Login() {
   return (
     <div className="card" id="login">
       <div className="actions">
-        <NamePhotoDialog submit={createUser} placeholder={"Username"}>
+        <DialogContainer type="photo" submit={createUser}>
           <button ref={createUserRef} style={{display: 'none'}}/>
-        </NamePhotoDialog>
-        <EmailAndPasswordDialog submit={emailAndPasswordSignIn} updateEmail={updateEmail} updatePassword={updatePassword}>
+        </DialogContainer>
+        <DialogContainer type="emailPassword" submit={emailAndPasswordSignIn}>
           <button className="save">Login</button>
-        </EmailAndPasswordDialog>
-          <button className="save" onClick={googleSignIn}>Sign In With Google</button>
+        </DialogContainer>
+        <button className="save" onClick={googleSignIn}>Sign In With Google</button>
+        
       </div>
       <div className="footer">
-        <PasswordResetDialog confirm={() => {sendPasswordReset(email)}} update={updateEmail}>
+        <DialogContainer type="passwordReset" submit={sendPasswordReset}>
           <a href="#">Forgot Password?</a>
-        </PasswordResetDialog>
+        </DialogContainer>
         <span>Don&#39;t have an account?
-          <EmailAndPasswordDialog submit={registerRoute} updateEmail={updateEmail} updatePassword={updatePassword}>
+          <DialogContainer type="emailPassword" submit={registerRoute}>
             <a href="#">Register Now.</a>
-          </EmailAndPasswordDialog>
+          </DialogContainer>
         </span>
       </div>
     </div>

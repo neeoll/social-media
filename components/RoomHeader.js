@@ -1,4 +1,4 @@
-import PasswordResetDialog from "./PasswordResetDialog"
+import DialogContainer from "./Dialog"
 
 export const RoomHeader = ({ data, createChannel }) => {
 
@@ -14,9 +14,9 @@ export const RoomHeader = ({ data, createChannel }) => {
       alignItems: 'center'
     }}>
       <span>{data}</span>
-      <PasswordResetDialog confirm={dispatch}>
+      <DialogContainer type="channel" submit={dispatch}>
         <button>Create Channel</button>
-      </PasswordResetDialog>
+      </DialogContainer>
     </div>
   )
 }

@@ -1,7 +1,8 @@
-import { onSnapshot, query, where, collection, orderBy, doc } from "firebase/firestore"
-import React, { useEffect, useReducer, useState } from "react"
+import { onSnapshot, query, collection, orderBy, getDoc, doc, deleteDoc } from "firebase/firestore"
+import { useEffect, useReducer } from "react"
 import { db } from "../utils/Firebase"
 import Message from "./Message"
+import { ContextMenuContainer } from "./ContextMenu"
 
 const initialState = { messages: [] }
 
@@ -11,17 +12,16 @@ const reducer = (state, action) => {
       return { messages: [] }
     }
     case 'add': {
-      state.messages.splice(0, 0, action.data)
-      return { messages: state.messages }
+      return { messages: [action.data, ...state.messages] }
     }
     case 'modify': {
       let index = state.messages.findIndex((message) => message.id === action.data.id)
-      state.messages.splice(index, 1, action.data)
-      return { messages: state.messages }
+      let modified = state.messages.splice(index, 1, action.data)
+      return { messages: modified }
     }
     case 'delete': {
-      const filtered = state.messages.filter(message => message.id != action.data.id)
-      return { messages: filtered }
+      let deleted = state.messages.filter(message => message.id != action.data.id)
+      return { messages: deleted }
     }
     default: {
       throw new Error()
@@ -37,14 +37,24 @@ export const Messages = ({ documentId }) => {
     dispatch({type: 'clear'})
     let messageCollection = query(collection(db, `/channels/${documentId}/messages`), orderBy('createdAt', 'asc'))
     let unsubscribe = onSnapshot(messageCollection, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
+      snapshot.docChanges().forEach(async(change) => {
         if (change.type === "added") {
           console.log('Added: ', change.doc.data())
-          dispatch({type: 'add', data: { ...change.doc.data(), id: change.doc.id }})
+          let senderData = await getSenderData(change.doc.data().senderRef.path)
+          dispatch({
+            type: 'add', 
+            data: { 
+              ...change.doc.data(), 
+              id: change.doc.id,
+              senderName: senderData.name,
+              senderProfileIcon: senderData.photoUrl,
+              senderUid: senderData.uid  
+            }
+          })
         }
         if (change.type === "modified") {
           console.log('Modified: ', change.doc.data())
-          dispatch({type: 'modify', data: { ...change.doc.data(), id: change.doc.id }})
+          // dispatch({type: 'modify', data: { ...change.doc.data(), id: change.doc.id }})
         }
         if (change.type === "removed") {
           console.log('Removed: ', change.doc.data())
@@ -53,13 +63,32 @@ export const Messages = ({ documentId }) => {
       })
     })
 
-    return () => unsubscribe()
+    return () => {
+      try {
+        unsubscribe()
+      } catch (error) {}
+    }
   }, [documentId])
+
+  const getSenderData = async(path) => {
+    const userDoc = await getDoc(doc(db, path))
+    return userDoc.data()
+  }
+
+  const deleteMessage = async(message) => {
+    try {
+      await deleteDoc(doc(db, `/channels/${documentId}/messages/${message.id}`))
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <div className="noScrollbar" id="messages">
       {state.messages.map((message) =>
-        <Message key={message.messageId} data={message} uid={message.from}/>
+        <ContextMenuContainer type="message" delete={() => { deleteMessage(message) }}>
+          <Message key={message.messageId} data={message} uid={message.senderUid}/>
+        </ContextMenuContainer>
       )}
     </div>
   )

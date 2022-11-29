@@ -1,19 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { PlusIcon } from '@radix-ui/react-icons'
 import { collection, where, query, onSnapshot, doc, updateDoc, arrayRemove } from 'firebase/firestore'
 import { db } from '../utils/Firebase'
-import ChannelContextMenu from './ChannelContextMenu'
-import styles from '../styles/Components.module.css'
+import { ContextMenuContainer } from './ContextMenu'
+import DialogContainer from './Dialog'
 
 const Channels = ({docId, activeChannel, setChannel}) => {
 
   const [channels, updateChannels] = useState([])
+  const [targetChannel, setTarget] = useState()
+  const editRef = useRef(null)
 
   useEffect(() => {
-    if (docId == undefined) return
+    if (docId == '') return
+    dispatch({type: 'clear'})
     let channelsQuery = query(collection(db, 'room'), where('__name__', '==', `${docId}`))
     let unsubscribe = onSnapshot(channelsQuery, (snapshot) => {
-      snapshot.docChanges().every(change => {
+      snapshot.docChanges().every(async (change) => {
         if (change.type === "added") {
           updateChannels(change.doc.data().channels)
           console.log("Added: ", change.doc.data())
@@ -50,7 +53,7 @@ const Channels = ({docId, activeChannel, setChannel}) => {
   return (
     <div className="noScrollbar">
       {channels.map((channel, index) => (
-        <ChannelContextMenu className={styles.contextMenu} delete={() => { handleDelete(channel) }}>
+        <ContextMenuContainer type="channel" delete={() => { handleDelete(channel) }} edit={() => { handleEdit(channel) }}>
           <button
             className="channel"
             onClick={() => {
@@ -60,7 +63,7 @@ const Channels = ({docId, activeChannel, setChannel}) => {
           >
             {channel.name}
           </button>
-        </ChannelContextMenu>
+        </ContextMenuContainer>
       ))}
     </div>
   )

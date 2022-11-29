@@ -4,9 +4,9 @@ import getCroppedImg from '../utils/CropImage'
 import * as Slider from '@radix-ui/react-slider'
 import styles from '../styles/Components.module.css'
 
-export const ImageCropper = ({updateFile}) => {
+export const ImageCropper = ({ currentSrc, updateFile}) => {
   const hiddenFileInput = useRef(null)
-  const [src, setSrc] = useState('')
+  const [src, setSrc] = useState(currentSrc)
   const [filename, setFilename] = useState('')
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
@@ -32,7 +32,6 @@ export const ImageCropper = ({updateFile}) => {
         filename
       )
       updateFile(croppedImage)
-      console.log(croppedImage)
     } catch (error) {
       console.log(error)
     }
