@@ -4,9 +4,9 @@ import getCroppedImg from '../utils/CropImage'
 import * as Slider from '@radix-ui/react-slider'
 import styles from '../styles/Components.module.css'
 
-export const ImageCropper = ({updateFile}) => {
+export const ImageCropper = ({ currentSrc, updateFile}) => {
   const hiddenFileInput = useRef(null)
-  const [src, setSrc] = useState('')
+  const [src, setSrc] = useState(currentSrc)
   const [filename, setFilename] = useState('')
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
@@ -23,11 +23,6 @@ export const ImageCropper = ({updateFile}) => {
     setFilename(event.target.files[0].name)
   }
 
-  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
-    setCroppedAreaPixels(croppedAreaPixels)
-    showCroppedImage()
-  }, [showCroppedImage])
-
   const showCroppedImage = useCallback(async () => {
     try {
       const croppedImage = await getCroppedImg(
@@ -37,11 +32,15 @@ export const ImageCropper = ({updateFile}) => {
         filename
       )
       updateFile(croppedImage)
-      console.log(croppedImage)
     } catch (error) {
       console.log(error)
     }
   }, [croppedAreaPixels, rotation, filename, src, updateFile])
+
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels)
+    showCroppedImage()
+  }, [showCroppedImage])
 
   return (
     <div style={{display: 'flex', flexDirection: 'column', gap: 10}}>

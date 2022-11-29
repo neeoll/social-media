@@ -1,18 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { db, storage } from '../utils/Firebase'
-import { Timestamp, updateDoc, addDoc, doc, getDoc, getDocs, query, collection, arrayUnion } from 'firebase/firestore'
+import { Timestamp, updateDoc, addDoc, doc, getDoc, getDocs, query, collection, arrayUnion, setDoc } from 'firebase/firestore'
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { getGlobalAuth, logout } from "../utils/AuthManager";
 import { useRouter } from "next/router";
 
 import MessageInput from "../components/MessageInput";
 import ProgressBar from "../components/ProgressBar";
-import JoinRoomDialog from "../components/JoinRoomDialog";
 import Messages from "../components/Messages";
 import UserModule from "../components/UserModule";
 import RoomHeader from "../components/RoomHeader";
 import Rooms from "../components/Rooms";
 import Channels from "../components/Channels";
+import DialogContainer from "../components/Dialog";
 
 export const getServerSideProps = async(context) => {
   const query = context.query
@@ -26,7 +26,7 @@ export const getServerSideProps = async(context) => {
 
 export default function Room({ data }) {
   const [messagesDocId, updateDocId] = useState('')
-  const [roomDocId, setRoomDocId] = useState()
+  const [roomDocId, setRoomDocId] = useState('')
   const [roomName, setRoomName] = useState('')
   const [file, setFile] = useState()
   const [filename, setFilename] = useState('')
@@ -49,8 +49,7 @@ export default function Room({ data }) {
       const roomSnap = await getDoc(doc(db, 'room', roomId))
       if (!roomSnap.exists()) return 
       setRoomName(roomSnap.data().name)
-      const messageDocId = roomSnap.data().channels[0].id.replace('/messages/', '')
-      updateDocId(messageDocId)
+      updateDocId(roomSnap.data().channels[0].id)
     } catch (error) {
       console.log(error)
     }
@@ -94,23 +93,21 @@ export default function Room({ data }) {
   const submit = async(e, textData) => {
     e.preventDefault()
     try {
-      const messagesRef = doc(db, 'messages', messagesDocId)
+      const messagesRef = collection(db, `/channels/${messagesDocId}/messages/`)
       const senderData = JSON.parse(window.sessionStorage.getItem('userData'))
       const isInvite = await checkIfInvite(textData)
       if (file) {
         await handleUpload(messagesRef, textData, senderData, isInvite)
       } else {
-        await updateDoc(messagesRef, {
-          messages: arrayUnion({
-            attachments: [],
-            contents: textData,
-            created: Timestamp.now().seconds,
-            messageId: generateId(10),
-            senderName: senderData.name,
-            senderProfileIcon: senderData.photoUrl,
-            senderUid: senderData.uid,
-            isInvite: isInvite
-          })
+        await addDoc(messagesRef, {
+          attachment: '',
+          contents: textData,
+          createdAt: Timestamp.now().seconds,
+          isInvite: isInvite,
+          senderName: senderData.name,
+          senderProfileIcon: senderData.photoUrl,
+          senderUid: senderData.uid,
+          senderRef: doc(db, 'users', senderData.docId)
         })
       }
     } catch (error) {
@@ -133,33 +130,36 @@ export default function Room({ data }) {
       (error) => console.log(error),
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then(async(url) => {
-          await updateDoc(messagesRef, {
-            messages: arrayUnion({
-              attachments: url,
+          let newImg = new Image()
+          newImg.src = url
+          newImg.onload = async() => {
+            await addDoc(messagesRef, {
+              attachment: {
+                height: newImg.height,
+                src: url,
+                width: newImg.width,
+              },
               contents: textData,
-              created: Timestamp.now().seconds,
-              messageId: generateId(10),
-              senderName: senderData.name,
-              senderProfileIcon: senderData.photoUrl,
-              senderUid: senderData.uid,
-              isInvite: isInvite
+              createdAt: Timestamp.now().seconds,
+              isInvite: isInvite,
+              senderRef: doc(db, 'users', senderData.docId)
             })
-          })
 
-          setPercent(null)
+            setPercent(null)
+          }
         })
       }
     )
   }
 
   const createChannel = async(channelName) => {
-    const messagesRef = await addDoc(collection(db, "messages"), {
-      messages: []
+    const messagesRef = await addDoc(collection(db, "channels"), {
+      name: channelName
     })
 
     const roomRef = doc(db, 'room', data.roomId)
     await updateDoc(roomRef, {
-      channels: arrayUnion({id: `/${messagesRef.path}`, name: channelName})
+      channels: arrayUnion({id: `${messagesRef.id}`, name: channelName})
     })
   }
 
@@ -180,9 +180,9 @@ export default function Room({ data }) {
 
   return (
     <div className="card" id="home">
-      <JoinRoomDialog roomDocId={data.roomId}>
+      <DialogContainer type="join" roomDocId={data.roomId}>
         <button ref={joinRoomRef} style={{display: 'none'}}/>
-      </JoinRoomDialog>
+      </DialogContainer>
       <Rooms />
       <div className="channels">
         <RoomHeader data={roomName} createChannel={createChannel}/>

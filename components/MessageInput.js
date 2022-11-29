@@ -46,7 +46,7 @@ const MessageInput = ({ submit, updateFile, children }) => {
             src={src}
             alt="" 
           />
-          <button className="icon" onClick={removeSrc}>
+          <button className="transparent" onClick={removeSrc}>
             <Cross2Icon height={20} width={20} />
           </button>
         </div>
@@ -58,7 +58,6 @@ const MessageInput = ({ submit, updateFile, children }) => {
         <input type="file" accept="image/*" onChange={handleChange} ref={hiddenFileInput} style={{display: 'none'}}/>
         <input 
           type="text"
-          className="message"
           onKeyDown={handleKeyPress}
           placeholder={children}
           onChange={(e) => {
